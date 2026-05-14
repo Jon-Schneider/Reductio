@@ -18,20 +18,23 @@ struct Summarizer: Sendable {
   }
 
   func execute() -> [String] {
-    let rank = TextRank<RankedSentence>()
+    guard phrases.count > 1 else { return [] }
+
+    let rank = IndexedTextRank(nodeCount: phrases.count)
     buildGraph(rank: rank)
     return rank.execute()
-      .sorted { $0.1 > $1.1 }
-      .map { $0.0.sentence.text }
+      .enumerated()
+      .sorted {
+        if $0.element == $1.element {
+          return $0.offset < $1.offset
+        }
+        return $0.element > $1.element
+      }
+      .map { phrases[$0.offset].text }
   }
 
-  private func buildGraph(rank: TextRank<RankedSentence>) {
+  private func buildGraph(rank: IndexedTextRank) {
     guard phrases.count > 1 else { return }
-
-    let nodes = phrases.enumerated().map { index, sentence in
-      RankedSentence(index: index, sentence: sentence)
-    }
-    nodes.forEach(rank.add(node:))
 
     let sentenceIDsByWord = buildSentenceIDsByWord()
     var overlapCounts = [SentencePair: Int]()
@@ -53,8 +56,8 @@ struct Summarizer: Sendable {
       )
       guard score > 0 else { continue }
 
-      rank.add(edge: nodes[pair.source], to: nodes[pair.target], weight: score)
-      rank.add(edge: nodes[pair.target], to: nodes[pair.source], weight: score)
+      rank.add(edge: pair.source, to: pair.target, weight: score)
+      rank.add(edge: pair.target, to: pair.source, weight: score)
     }
   }
 
@@ -77,19 +80,6 @@ struct Summarizer: Sendable {
 
     guard denominator > 0, denominator.isFinite else { return 0 }
     return Float(overlapCount) / denominator
-  }
-}
-
-private struct RankedSentence: Hashable, Sendable {
-  let index: Int
-  let sentence: Sentence
-
-  static func ==(lhs: RankedSentence, rhs: RankedSentence) -> Bool {
-    lhs.index == rhs.index
-  }
-
-  func hash(into hasher: inout Hasher) {
-    hasher.combine(index)
   }
 }
 
