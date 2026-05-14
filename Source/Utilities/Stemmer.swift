@@ -18,6 +18,7 @@ enum Stemmer {
     guard !sentences.isEmpty else { return [] }
 
     var text = ""
+    text.reserveCapacity(sentences.reduce(0) { $0 + $1.count + 1 })
     var ranges: [Range<String.Index>] = []
     ranges.reserveCapacity(sentences.count)
 

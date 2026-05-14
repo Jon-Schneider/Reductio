@@ -13,13 +13,20 @@ struct Keyword: Sendable {
   private let words: [String]
   
   init(text: String) {
-    self.words = Self.preprocess(text)
-      .filter { $0.count > 2 }
-      .filter { !stopwordSet.contains($0) }
+    let preprocessedWords = Self.preprocess(text)
+    var words: [String] = []
+    words.reserveCapacity(preprocessedWords.count)
+
+    for word in preprocessedWords where word.count > 2 && !stopwordSet.contains(word) {
+      words.append(word)
+    }
+
+    self.words = words
   }
   
   func execute() -> [String] {
     let ranking = TextRank<String>()
+    ranking.reserveCapacity(words.count)
     buildGraph(ranking: ranking)
     return ranking.execute()
       .sorted { $0.1 > $1.1 }

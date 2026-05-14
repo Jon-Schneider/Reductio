@@ -164,6 +164,21 @@ struct SummarizerBuildGraphTests {
     #expect(Set(summary) == [full, partial])
   }
 
+  @Test("Repeated words within a sentence do not inflate similarity")
+  func repeatedWordsWithinSentenceDoNotInflateSimilarity() {
+    let relatedA = "Alpha bravo charlie delta."
+    let relatedB = "Alpha bravo charlie delta echo."
+    let repeatedOutlier = "Alpha alpha alpha alpha alpha alpha."
+
+    let summary = [
+      relatedA,
+      repeatedOutlier,
+      relatedB
+    ].summarized(count: 2).trimmed
+
+    #expect(Set(summary) == [relatedA, relatedB])
+  }
+
   // MARK: - Scale
 
   @Test("Moderate input keeps every unique sentence represented")

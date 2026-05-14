@@ -64,19 +64,32 @@ final class TextRank<T: Hashable & Sendable> {
     self.configuration = configuration
   }
 
-  func add(node: T) {
-    graph[node] = graph[node] ?? []
+  func reserveCapacity(_ minimumCapacity: Int) {
+    graph.reserveCapacity(minimumCapacity)
+    outlinks.reserveCapacity(minimumCapacity)
+    nodes.reserveCapacity(minimumCapacity)
+    weights.reserveCapacity(minimumCapacity)
+  }
 
-    // Initialize nodes with validated score
-    let initialScore = max(0.0, min(1.0, configuration.initialScore))
-    nodes[node] = nodes[node] ?? initialScore
+  func add(node: T) {
+    guard nodes[node] == nil else { return }
+
+    graph[node] = []
+    nodes[node] = initialScore
   }
 
   func add(edge from: T, to: T, weight: Float = 1.0) {
     if from == to { return }
 
-    add(edgeNode: from, to: to)
-    add(weigth: from, to: to, weight: weight)
+    if nodes[from] == nil {
+      add(node: from)
+    }
+    if nodes[to] == nil {
+      add(node: to)
+    }
+
+    graph[to, default: []].append(from)
+    add(weight: from, to: to, weight: weight)
     increment(outlinks: from)
   }
 
@@ -119,6 +132,7 @@ final class TextRank<T: Hashable & Sendable> {
   /// - Returns: Updated node values, or nil if calculation produces invalid values
   private func iteration(_ nodes: Node) -> Node? {
     var vertex = Node()
+    vertex.reserveCapacity(nodes.count)
 
     for (node, links) in graph {
       // Calculate weighted score from incoming links
@@ -199,6 +213,10 @@ final class TextRank<T: Hashable & Sendable> {
 }
 
 private extension TextRank {
+  var initialScore: Float {
+    max(0.0, min(1.0, configuration.initialScore))
+  }
+
   func increment(outlinks source: T) {
     if let links = outlinks[source] {
       outlinks[source] = links + 1
@@ -207,17 +225,8 @@ private extension TextRank {
     }
   }
 
-  func add(edgeNode from: T, to: T) {
-    graph[to, default: []].append(from)
-    add(node: from)
-    add(node: to)
-  }
-
-  func add(weigth from: T, to: T, weight: Float) {
-    if weights[from] == nil {
-      weights[from] = Node()
-    }
-    weights[from]?[to] = weight
+  func add(weight from: T, to: T, weight: Float) {
+    weights[from, default: Node()][to] = weight
   }
 }
 

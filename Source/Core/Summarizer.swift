@@ -38,6 +38,7 @@ struct Summarizer: Sendable {
 
     let sentenceIDsByWord = buildSentenceIDsByWord()
     var overlapCounts = [SentencePair: Int]()
+    overlapCounts.reserveCapacity(phrases.count)
 
     for sentenceIDs in sentenceIDsByWord.values where sentenceIDs.count > 1 {
       for sourceIndex in 0..<(sentenceIDs.count - 1) {
@@ -63,9 +64,14 @@ struct Summarizer: Sendable {
 
   private func buildSentenceIDsByWord() -> [String: [Int]] {
     var sentenceIDsByWord = [String: [Int]]()
+    sentenceIDsByWord.reserveCapacity(phrases.reduce(0) { $0 + $1.words.count })
+    var seenWords = Set<String>()
 
     for (index, phrase) in phrases.enumerated() {
-      for word in Set(phrase.words) {
+      seenWords.removeAll(keepingCapacity: true)
+      seenWords.reserveCapacity(phrase.words.count)
+
+      for word in phrase.words where seenWords.insert(word).inserted {
         sentenceIDsByWord[word, default: []].append(index)
       }
     }
