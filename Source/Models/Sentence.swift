@@ -18,6 +18,11 @@ struct Sentence: Equatable, Hashable, Sendable {
       .filter { !stopwordSet.contains($0) }
   }
 
+  init(text: String, stemmedWords: [String]) {
+    self.text = text
+    self.words = stemmedWords.filter { !stopwordSet.contains($0) }
+  }
+
   init(text: String, stopwords: [String] = stopwords) {
     self.text = text
     let stopwordSet = Set(stopwords)

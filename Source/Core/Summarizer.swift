@@ -12,7 +12,9 @@ struct Summarizer: Sendable {
   private let phrases: [Sentence]
 
   init(text: String) {
-    self.phrases = text.sentences.map(Sentence.init)
+    let sentenceTexts = text.sentences
+    let stemmedWords = Stemmer.stemmingWordsInSentences(sentenceTexts)
+    self.phrases = zip(sentenceTexts, stemmedWords).map(Sentence.init(text:stemmedWords:))
   }
 
   func execute() -> [String] {
