@@ -178,6 +178,26 @@ struct SummarizerBuildGraphTests {
     #expect(Set(summary) == Set(sentences))
   }
 
+  @Test("Large sparse input ranks related sentences without dropping isolated sentences")
+  func largeSparseInputRanksRelatedSentences() {
+    let relatedA = "Orion quartz lantern vector harbor signal."
+    let relatedB = "Orion quartz lantern vector harbor signal beacon."
+    var sentences = (0..<240).map { index in
+      var words = (0..<12).map { uniqueWord(index * 12 + $0) }
+      words[0] = words[0].capitalized
+      return words.joined(separator: " ") + "."
+    }
+
+    sentences.insert(relatedA, at: 37)
+    sentences.insert(relatedB, at: 211)
+
+    let summary = sentences.summarized().trimmed
+
+    #expect(summary.count == sentences.count)
+    #expect(Set(summary) == Set(sentences))
+    #expect(Set(summary.prefix(2)) == [relatedA, relatedB])
+  }
+
   // MARK: - Count parameter
 
   @Test("Requesting more sentences than available returns all")
@@ -216,4 +236,9 @@ private extension Array where Element == String {
   var trimmed: [String] {
     map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
   }
+}
+
+private func uniqueWord(_ value: Int) -> String {
+  let alphabet = Array("abcdefghijklmnopqrstuvwxyz")
+  return "zz\(alphabet[(value / 676) % 26])\(alphabet[(value / 26) % 26])\(alphabet[value % 26])"
 }
