@@ -64,10 +64,18 @@ final class TextRank<T: Hashable & Sendable> {
     self.configuration = configuration
   }
 
+  func add(node: T) {
+    graph[node] = graph[node] ?? []
+
+    // Initialize nodes with validated score
+    let initialScore = max(0.0, min(1.0, configuration.initialScore))
+    nodes[node] = nodes[node] ?? initialScore
+  }
+
   func add(edge from: T, to: T, weight: Float = 1.0) {
     if from == to { return }
 
-    add(node: from, to: to)
+    add(edgeNode: from, to: to)
     add(weigth: from, to: to, weight: weight)
     increment(outlinks: from)
   }
@@ -199,18 +207,10 @@ private extension TextRank {
     }
   }
 
-  func add(node from: T, to: T) {
-    if var node = graph[to] {
-      node.append(from)
-      graph[to] = node
-    } else {
-      graph[to] = [from]
-    }
-
-    // Initialize nodes with validated score
-    let initialScore = max(0.0, min(1.0, configuration.initialScore))
-    nodes[from] = nodes[from] ?? initialScore
-    nodes[to] = nodes[to] ?? initialScore
+  func add(edgeNode from: T, to: T) {
+    graph[to, default: []].append(from)
+    add(node: from)
+    add(node: to)
   }
 
   func add(weigth from: T, to: T, weight: Float) {
