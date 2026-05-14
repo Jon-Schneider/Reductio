@@ -24,14 +24,10 @@ struct Summarizer: Sendable {
   }
 
   private func buildGraph(rank: TextRank<Sentence>) {
-    let combinations = self.phrases.combinations(length: 2)
-
-    combinations.forEach { combo in
-      guard combo.count == 2,
-            let first = combo.first,
-            let last = combo.last
-      else { return }
-      add(edge: first, node: last, rank: rank)
+    for i in 0..<phrases.count {
+      for j in (i + 1)..<phrases.count {
+        add(edge: phrases[i], node: phrases[j], rank: rank)
+      }
     }
   }
 
