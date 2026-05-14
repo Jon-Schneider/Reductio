@@ -90,8 +90,8 @@ struct ReductioTests {
       #expect(keywords.isEmpty || keywords == ["hello"])
     }
 
-    @Test("Text with only stopwords")
-    func onlyStopwords() {
+    @Test("Text with only function words")
+    func onlyFunctionWords() {
       let keywords = "the and or but if".keywords
       #expect(keywords.isEmpty)
     }

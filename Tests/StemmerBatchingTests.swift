@@ -22,7 +22,7 @@ struct StemmerBatchingTests {
     ]
 
     let batchedStems = Stemmer.stemmingWordsInSentences(sentences)
-    let individualStems = sentences.map(Stemmer.stemmingWordsInText)
+    let individualStems = sentences.map { Stemmer.stemmingWordsInText($0) }
 
     #expect(batchedStems == individualStems)
   }

@@ -15,18 +15,10 @@ struct Sentence: Equatable, Hashable, Sendable {
   init(text: String) {
     self.text = text
     self.words = Stemmer.stemmingWordsInText(text)
-      .filter { !stopwordSet.contains($0) }
   }
 
-  init(text: String, stemmedWords: [String]) {
+  init(text: String, words: [String]) {
     self.text = text
-    self.words = stemmedWords.filter { !stopwordSet.contains($0) }
-  }
-
-  init(text: String, stopwords: [String] = stopwords) {
-    self.text = text
-    let stopwordSet = Set(stopwords)
-    self.words = Stemmer.stemmingWordsInText(text)
-      .filter { !stopwordSet.contains($0) }
+    self.words = words
   }
 }

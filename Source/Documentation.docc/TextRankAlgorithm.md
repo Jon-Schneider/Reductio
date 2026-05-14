@@ -27,8 +27,7 @@ Where:
 #### For Keyword Extraction
 
 1. **Vertices**: Words that pass filters
-   - Nouns and adjectives (using part-of-speech tagging)
-   - Not in stopword list
+   - Content words identified by NLTagger lexical class (determiners, prepositions, conjunctions, particles, and pronouns are removed)
    - Minimum length requirements
 
 2. **Edges**: Co-occurrence relationships
@@ -72,28 +71,31 @@ Similarity score: 4 / (log(5) + log(6)) ≈ 0.67
 
 ```swift
 struct TextPreprocessor {
+  let tagger = NLTagger(tagSchemes: [.lexicalClass, .lemma])
+  let filteredClasses: Set<NLTag> = [
+    .preposition, .determiner, .conjunction, .particle, .pronoun
+  ]
+
   func preprocess(_ text: String) -> PreprocessedText {
-    // Sentence segmentation
     let sentences = segmentSentences(text)
-    
-    // Word tokenization and filtering
+
     let tokens = sentences.map { sentence in
       tokenize(sentence)
-        .filter { isValidWord($0) }
+        .filter { isContentWord($0) }
         .map { lemmatize($0) }
     }
-    
+
     return PreprocessedText(
       sentences: sentences,
       tokens: tokens,
       vocabulary: buildVocabulary(tokens)
     )
   }
-  
-  private func isValidWord(_ word: String) -> Bool {
-    !stopwords.contains(word.lowercased()) &&
-    word.count >= minimumWordLength &&
-    isContentWord(word)  // Noun or adjective
+
+  private func isContentWord(_ token: TokenInfo) -> Bool {
+    guard let tag = token.lexicalClass else { return true }
+    return !filteredClasses.contains(tag)
+        && token.text.count >= minimumWordLength
   }
 }
 ```

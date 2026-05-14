@@ -14,7 +14,7 @@ struct Summarizer: Sendable {
   init(text: String) {
     let sentenceTexts = text.sentences
     let stemmedWords = Stemmer.stemmingWordsInSentences(sentenceTexts)
-    self.phrases = zip(sentenceTexts, stemmedWords).map(Sentence.init(text:stemmedWords:))
+    self.phrases = zip(sentenceTexts, stemmedWords).map(Sentence.init(text:words:))
   }
 
   func execute() -> [String] {

@@ -215,7 +215,7 @@ Get started with documentation at [https://fdzsergio.github.io/Reductio/](https:
 1. **Text Preprocessing**
    - Sentence segmentation using NaturalLanguage framework
    - Word tokenization and normalization
-   - Stopword removal (common words like "the", "is", "at")
+   - Function-word filtering using NaturalLanguage lexical classes
    - Lemmatization to reduce words to base forms
 
 2. **Graph Construction**

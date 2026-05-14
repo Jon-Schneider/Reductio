@@ -49,8 +49,8 @@ struct SummarizerBuildGraphTests {
     #expect(summary == [repeated, repeated])
   }
 
-  @Test("Stopword-only sentences are still graph vertices")
-  func stopwordOnlySentencesAreReturned() {
+  @Test("Function-word-only sentences are still graph vertices")
+  func functionWordOnlySentencesAreReturned() {
     let sentences = [
       "The and of.",
       "But or yet.",

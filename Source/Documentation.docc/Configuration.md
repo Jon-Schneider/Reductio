@@ -61,9 +61,9 @@ let allSentences = await Reductio.summarize(text: text)
 
 ## Domain Customization
 
-### Custom Stopwords
+### Domain-Specific Filtering
 
-While Reductio includes comprehensive stopwords, you might need domain-specific filtering:
+Reductio filters function words automatically using NLTagger lexical classes. For domain-specific filtering, post-process the results:
 
 ```swift
 extension String {
@@ -74,8 +74,8 @@ extension String {
 }
 
 // Usage
-let medicalStopwords: Set<String> = ["patient", "doctor", "hospital"]
-let specificKeywords = text.domainKeywords(excludeTerms: medicalStopwords)
+let excludedMedicalTerms: Set<String> = ["patient", "doctor", "hospital"]
+let specificKeywords = text.domainKeywords(excludeTerms: excludedMedicalTerms)
 ```
 
 ### Technical Text Processing

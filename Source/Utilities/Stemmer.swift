@@ -10,11 +10,20 @@ import Foundation
 import NaturalLanguage
 
 enum Stemmer {
-  static func stemmingWordsInText(_ text: String) -> [String] {
-    stemmingWords(in: text, groupedBy: [text.startIndex..<text.endIndex]).first ?? []
+
+  struct Options: Sendable {
+    var minimumWordLength: Int = 1
+    var requiresAlphabeticToken: Bool = false
+
+    static let summarization = Options()
+    static let keywords = Options(minimumWordLength: 3, requiresAlphabeticToken: true)
   }
 
-  static func stemmingWordsInSentences(_ sentences: [String]) -> [[String]] {
+  static func stemmingWordsInText(_ text: String, options: Options = .summarization) -> [String] {
+    stemmingWords(in: text, groupedBy: [text.startIndex..<text.endIndex], options: options).first ?? []
+  }
+
+  static func stemmingWordsInSentences(_ sentences: [String], options: Options = .summarization) -> [[String]] {
     guard !sentences.isEmpty else { return [] }
 
     var text = ""
@@ -32,17 +41,25 @@ enum Stemmer {
       ranges.append(startIndex..<text.endIndex)
     }
 
-    return stemmingWords(in: text, groupedBy: ranges)
+    return stemmingWords(in: text, groupedBy: ranges, options: options)
   }
 
-  private static func stemmingWords(in text: String, groupedBy ranges: [Range<String.Index>]) -> [[String]] {
+  private static let filteredLexicalClasses: Set<NLTag> = [
+    .preposition, .determiner, .conjunction, .particle, .pronoun,
+  ]
+
+  private static func stemmingWords(
+    in text: String,
+    groupedBy ranges: [Range<String.Index>],
+    options: Options
+  ) -> [[String]] {
     guard !ranges.isEmpty else { return [] }
 
     var stems = Array(repeating: [String](), count: ranges.count)
     let tokenizer = NLTokenizer(unit: .word)
     tokenizer.string = text
 
-    let tagger = NLTagger(tagSchemes: [.lemma])
+    let tagger = NLTagger(tagSchemes: [.lexicalClass, .lemma])
     tagger.string = text
 
     var rangeIndex = 0
@@ -55,13 +72,29 @@ enum Stemmer {
         return true
       }
 
+      let classTag = tagger.tag(at: tokenRange.lowerBound, unit: .word, scheme: .lexicalClass).0
+      if let classTag, filteredLexicalClasses.contains(classTag) {
+        return true
+      }
+
       let token = String(text[tokenRange])
 
-      if let tag = tagger.tag(at: tokenRange.lowerBound, unit: .word, scheme: .lemma).0?.rawValue {
-        stems[rangeIndex].append(tag.lowercased())
-      } else {
-        stems[rangeIndex].append(token.lowercased())
+      if options.requiresAlphabeticToken && !token.unicodeScalars.contains(where: CharacterSet.letters.contains) {
+        return true
       }
+
+      let lemma: String
+      if let tag = tagger.tag(at: tokenRange.lowerBound, unit: .word, scheme: .lemma).0?.rawValue {
+        lemma = tag.lowercased()
+      } else {
+        lemma = token.lowercased()
+      }
+
+      if lemma.count < options.minimumWordLength {
+        return true
+      }
+
+      stems[rangeIndex].append(lemma)
 
       return true
     }

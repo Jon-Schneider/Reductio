@@ -16,7 +16,7 @@ Text summarization uses the TextRank algorithm to identify and extract the most 
 2. **Sentence Representation**
    - Each sentence converted to a vector representation
    - Words weighted by importance (TF-IDF-like scoring)
-   - Stopwords filtered to focus on content words
+   - Function words filtered via NLTagger lexical classes to focus on content words
 
 3. **Graph Construction**
    - Sentences become vertices in the graph

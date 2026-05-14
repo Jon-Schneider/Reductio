@@ -10,9 +10,8 @@ Keyword extraction identifies the most important words in a text by analyzing th
 
 1. **Text Preprocessing**
    - Tokenization into words
-   - Stopword removal (common words like "the", "is", "at")
+   - Part-of-speech filtering via NLTagger (removes determiners, prepositions, conjunctions, particles, pronouns)
    - Lemmatization to reduce words to base forms
-   - Part-of-speech tagging to identify nouns and adjectives
 
 2. **Graph Construction**
    - Each word becomes a vertex in the graph
@@ -128,7 +127,7 @@ extension ScientificPaper {
 
 ### Preprocessing
 - Clean text of special characters and formatting
-- Consider domain-specific stopwords
+- Content-word filtering is handled automatically via NLTagger lexical classes
 - Preserve compound terms when relevant
 
 ### Optimization
