@@ -15,7 +15,7 @@ struct Keyword: Sendable {
   init(text: String) {
     self.words = Self.preprocess(text)
       .filter { $0.count > 2 }
-      .filter { !stopwords.contains($0) }
+      .filter { !stopwordSet.contains($0) }
   }
   
   func execute() -> [String] {

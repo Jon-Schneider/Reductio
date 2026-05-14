@@ -11,7 +11,7 @@ import Foundation
 let stopwords = [
   "a", "about", "above", "across", "after", "afterwards", "again", "against", "all", "almost", "alone", "along",
   "already", "also", "although", "always", "am", "among", "amongst", "amoungst", "amount", "an", "and", "another",
-  "any", " anyhow", "anyone", "anything", "anyway", "anywhere", "are", "around", "as", "at", "back", "be", "became",
+  "any", "anyhow", "anyone", "anything", "anyway", "anywhere", "are", "around", "as", "at", "back", "be", "became",
   "because", "become", "becomes", "becoming", "been", "before", "beforehand", "behind", "being", "below", "beside",
   "besides", "between", "beyond", "bill", "both", "bottom", "but", "by", "call", "can", "cannot", "cant", "co", "con",
   "could", "couldnt", "cry", "de", "describe", "detail", "do", "done", "down", "due", "during", "each", "eg", "eight",
@@ -36,3 +36,5 @@ let stopwords = [
   "whither", "who", "whoever", "whole", "whom", "whose", "why", "will", "with", "within", "without", "would", "yet",
   "you", "your", "yours", "yourself", "yourselves",
 ]  // swiftlint:disable:this line_length
+
+let stopwordSet = Set(stopwords)
